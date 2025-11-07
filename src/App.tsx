@@ -47,18 +47,32 @@ const App: React.FC = () => {
 
   const submit = async () => {
     if (!name) return alert("Choisis ton nom avant d’enregistrer !");
+
     setSaveLoading(true);
-    saveData(name, availability)
-      .then(async () => {
-        const updated = await getData();
-        setData(updated);
-        alert("✅ Dispos enregistrées !");
-        setSaveLoading(false);
-      })
-      .catch(() => {
-        alert("❌ Erreur lors de l’enregistrement. Réessaie ?");
-        setSaveLoading(false);
-      });
+
+    try {
+      // Sauvegarde des données
+      await saveData(name, availability);
+
+      // Récupération des données mises à jour
+      const updated = await getData();
+
+      // Vérification simple : s'assurer que c'est bien un objet
+      if (typeof updated !== "object" || updated === null) {
+        throw new Error("Les données récupérées ne sont pas valides !");
+      }
+
+      setData(updated);
+      alert("✅ Dispos enregistrées !");
+    } catch (err) {
+      console.error(
+        "Erreur lors de l'enregistrement ou de la récupération :",
+        err
+      );
+      alert("❌ Erreur lors de l’enregistrement. Réessaie ?");
+    } finally {
+      setSaveLoading(false);
+    }
   };
 
   const { combined, namesBySlot } = computeCombinedAndNames(data);
@@ -71,7 +85,14 @@ const App: React.FC = () => {
       <div className="flex flex-col items-center">
         <h1 className="text-2xl font-bold mb-4">
           🗓 Fin réu pacte cofondateur
+          {name && name !== "Just see the calendar" && ` - ${name}`}
         </h1>
+
+        {saveLoading && (
+          <div className="mb-2 text-blue-600 font-semibold">
+            Sauvegarde en cours...
+          </div>
+        )}
 
         <Calendar
           availability={availability}

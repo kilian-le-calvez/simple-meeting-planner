@@ -7,7 +7,14 @@ const isProd = process.env.NODE_ENV === "production";
 export async function getData(): Promise<UserAvailability[]> {
   if (isProd) {
     const res = await fetch("/api/get");
-    return res.json();
+    const text = await res.text();
+
+    try {
+      return JSON.parse(text);
+    } catch {
+      console.error("Réponse reçue non JSON :", text);
+      throw new Error("La réponse du serveur n'était pas du JSON !");
+    }
   } else {
     return db;
   }
