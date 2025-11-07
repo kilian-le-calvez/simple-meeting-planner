@@ -15,6 +15,8 @@ const MEMBERS = [
   "Just see the calendar",
 ];
 
+// ...imports inchangés
+
 const App: React.FC = () => {
   const [name, setName] = useState<string | null>(null);
   const [availability, setAvailability] = useState<Availability>({});
@@ -22,14 +24,14 @@ const App: React.FC = () => {
   const [hoveredSlot, setHoveredSlot] = useState<string | null>(null);
   const [saveLoading, setSaveLoading] = useState(false);
 
-  // Charger les données globales
+  // Charger les données globales une seule fois
   useEffect(() => {
     getData()
       .then(setData)
-      .catch(() => {});
+      .catch((err) => console.error("Erreur getData au montage :", err));
   }, []);
 
-  // Recharger la dispo de la personne sélectionnée
+  // Met à jour la dispo locale lorsque le nom change
   useEffect(() => {
     if (!name) return;
     const existing = data.find((u) => u.name === name);
@@ -37,7 +39,7 @@ const App: React.FC = () => {
   }, [name, data]);
 
   const toggleSlot = (day: string, hour: number, forceValue?: boolean) => {
-    if (!name) return; // lecture seule si pas connecté
+    if (!name) return;
     const key = `${day}-${hour}`;
     setAvailability((prev) => ({
       ...prev,
@@ -49,29 +51,37 @@ const App: React.FC = () => {
     if (!name) return alert("Choisis ton nom avant d’enregistrer !");
 
     setSaveLoading(true);
-
     try {
-      // Sauvegarde des données
       await saveData(name, availability);
 
-      // Récupération des données mises à jour
-      const updated = await getData();
+      // Mets à jour localement le state pour éviter le GET
+      setData((prev) => {
+        const existingIndex = prev.findIndex((u) => u.name === name);
+        if (existingIndex !== -1) {
+          const copy = [...prev];
+          copy[existingIndex] = { name, availability };
+          return copy;
+        } else {
+          return [...prev, { name, availability }];
+        }
+      });
 
-      // Vérification simple : s'assurer que c'est bien un objet
-      if (typeof updated !== "object" || updated === null) {
-        throw new Error("Les données récupérées ne sont pas valides !");
-      }
-
-      setData(updated);
       alert("✅ Dispos enregistrées !");
     } catch (err) {
-      console.error(
-        "Erreur lors de l'enregistrement ou de la récupération :",
-        err
-      );
+      console.error("Erreur lors de l'enregistrement :", err);
       alert("❌ Erreur lors de l’enregistrement. Réessaie ?");
     } finally {
       setSaveLoading(false);
+    }
+  };
+
+  const refreshData = async () => {
+    try {
+      const updated = await getData();
+      setData(updated);
+    } catch (err) {
+      console.error("Erreur rafraîchissement :", err);
+      alert("❌ Impossible de rafraîchir les données.");
     }
   };
 
@@ -81,7 +91,7 @@ const App: React.FC = () => {
   return (
     <div className="w-screen min-h-screen flex flex-row justify-between items-center p-8">
       <div></div>
-      {/* Partie gauche : calendrier */}
+
       <div className="flex flex-col items-center">
         <h1 className="text-2xl font-bold mb-4">
           🗓 Fin réu pacte cofondateur
@@ -103,17 +113,26 @@ const App: React.FC = () => {
           toggleSlot={toggleSlot}
         />
 
-        {name && name !== "Just see the calendar" && (
+        <div className="flex gap-2 mt-4">
+          {name && name !== "Just see the calendar" && (
+            <button
+              onClick={submit}
+              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            >
+              Enregistrer mes dispos
+            </button>
+          )}
+
           <button
-            onClick={submit}
-            className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            onClick={refreshData}
+            className="bg-gray-300 text-gray-800 px-4 py-2 rounded hover:bg-gray-400"
           >
-            Enregistrer mes dispos
+            🔄 Rafraîchir
           </button>
-        )}
+        </div>
       </div>
 
-      {/* Partie droite : infos et sélection de nom */}
+      {/* Partie droite : sélection de nom et légende inchangée */}
       <div className="max-w-xs">
         <h2 className="text-lg font-bold mb-2">Participants :</h2>
         <div className="flex flex-wrap gap-2 mb-4">
