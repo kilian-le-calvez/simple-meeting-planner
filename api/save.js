@@ -30,6 +30,7 @@ export default async function handler(req, res) {
   await put("data.json", JSON.stringify(current), {
     contentType: "application/json",
     token: process.env.SECRET_BLOBBY_READ_WRITE_TOKEN, // ← token ici aussi
+    access: "public",
   });
 
   return res.status(200).json({ ok: true });
