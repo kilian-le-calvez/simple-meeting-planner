@@ -1,4 +1,6 @@
+/* global process */
 import { put, list } from "@vercel/blob";
+import "dotenv/config";
 
 export const config = {
   runtime: "nodejs",
@@ -10,7 +12,10 @@ export default async function handler(req, res) {
 
   const { name, availability } = req.body;
 
-  const listResponse = await list();
+  const listResponse = await list({
+    token: process.env.BLOB_READ_WRITE_TOKEN, // ← token ici
+  });
+
   const file = listResponse.blobs.find((b) => b.pathname === "data.json");
 
   let current = [];
@@ -25,6 +30,7 @@ export default async function handler(req, res) {
 
   await put("data.json", JSON.stringify(current), {
     contentType: "application/json",
+    token: process.env.BLOB_READ_WRITE_TOKEN, // ← token ici aussi
   });
 
   return res.status(200).json({ ok: true });
