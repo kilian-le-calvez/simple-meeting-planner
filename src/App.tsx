@@ -20,6 +20,7 @@ const App: React.FC = () => {
   const [availability, setAvailability] = useState<Availability>({});
   const [data, setData] = useState<UserAvailability[]>([]);
   const [hoveredSlot, setHoveredSlot] = useState<string | null>(null);
+  const [saveLoading, setSaveLoading] = useState(false);
 
   // Charger les données globales
   useEffect(() => {
@@ -46,10 +47,18 @@ const App: React.FC = () => {
 
   const submit = async () => {
     if (!name) return alert("Choisis ton nom avant d’enregistrer !");
-    await saveData(name, availability);
-    const updated = await getData();
-    setData(updated);
-    alert("✅ Dispos enregistrées !");
+    setSaveLoading(true);
+    saveData(name, availability)
+      .then(async () => {
+        const updated = await getData();
+        setData(updated);
+        alert("✅ Dispos enregistrées !");
+        setSaveLoading(false);
+      })
+      .catch(() => {
+        alert("❌ Erreur lors de l’enregistrement. Réessaie ?");
+        setSaveLoading(false);
+      });
   };
 
   const { combined, namesBySlot } = computeCombinedAndNames(data);
