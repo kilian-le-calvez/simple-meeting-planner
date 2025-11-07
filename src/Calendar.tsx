@@ -25,6 +25,23 @@ const Calendar: React.FC<CalendarProps> = ({
   const [isDragging, setIsDragging] = useState(false);
   const [dragValue, setDragValue] = useState<boolean | null>(null);
 
+  React.useEffect(() => {
+    const handleGlobalMouseUp = () => {
+      setIsDragging(false);
+      setDragValue(null);
+    };
+    window.addEventListener("mouseup", handleGlobalMouseUp);
+    return () => window.removeEventListener("mouseup", handleGlobalMouseUp);
+  }, []);
+
+  const handleMouseUpCell = (day: string, hour: number) => {
+    if (isDragging && dragValue !== null) {
+      toggleSlot(day, hour, dragValue);
+    }
+    setIsDragging(false);
+    setDragValue(null);
+  };
+
   const handleMouseDown = (day: string, hour: number) => {
     const key = `${day}-${hour}`;
     const currentlySelected = !!availability[key];
@@ -71,6 +88,7 @@ const Calendar: React.FC<CalendarProps> = ({
               setHoveredSlot={setHoveredSlot}
               onMouseDown={() => handleMouseDown(d, h)}
               onMouseEnter={() => handleMouseEnter(d, h)}
+              onMouseUp={() => handleMouseUpCell(d, h)} // 👈 ajouté ici
             />
           ))}
         </React.Fragment>

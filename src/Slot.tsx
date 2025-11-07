@@ -14,6 +14,7 @@ interface SlotProps {
   setHoveredSlot: (key: string | null) => void;
   onMouseDown: () => void;
   onMouseEnter: () => void;
+  onMouseUp: () => void; // 👈 ajouté ici
 }
 
 const Slot: React.FC<SlotProps> = ({
@@ -26,6 +27,7 @@ const Slot: React.FC<SlotProps> = ({
   setHoveredSlot,
   onMouseDown,
   onMouseEnter,
+  onMouseUp, // 👈 ajouté ici
 }) => {
   let bgClass = "bg-transparent";
   if (selected) bgClass = "bg-blue-400 bg-opacity-50";
@@ -41,6 +43,7 @@ const Slot: React.FC<SlotProps> = ({
       onMouseEnter={onMouseEnter}
       onMouseLeave={() => setHoveredSlot(null)}
       onMouseOver={() => setHoveredSlot(names.length ? `${day}-${hour}` : null)}
+      onMouseUp={onMouseUp}
       className={`border h-8 cursor-pointer flex items-center justify-center text-sm relative ${bgClass}`}
     >
       {count > 0 ? count : ""}
