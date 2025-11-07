@@ -1,37 +1,31 @@
 import { put, list } from "@vercel/blob";
 
 export const config = {
-  runtime: "edge",
+  runtime: "nodejs",
 };
 
-export default async function handler(req) {
+export default async function handler(req, res) {
   if (req.method !== "POST")
-    return new Response("Method not allowed", { status: 405 });
+    return res.status(405).json({ error: "Method not allowed" });
 
-  const body = await req.json();
-  const { name, availability } = body;
+  const { name, availability } = req.body;
 
-  // Télécharger le fichier de données existant
   const listResponse = await list();
   const file = listResponse.blobs.find((b) => b.pathname === "data.json");
 
   let current = [];
   if (file) {
-    const res = await fetch(file.url);
-    current = await res.json();
+    const resFile = await fetch(file.url);
+    current = await resFile.json();
   }
 
-  // Mettre à jour ou ajouter l'utilisateur
   const existing = current.find((u) => u.name === name);
   if (existing) existing.availability = availability;
   else current.push({ name, availability });
 
-  // Réécrire le blob
   await put("data.json", JSON.stringify(current), {
     contentType: "application/json",
   });
 
-  return new Response(JSON.stringify({ ok: true }), {
-    headers: { "Content-Type": "application/json" },
-  });
+  return res.status(200).json({ ok: true });
 }

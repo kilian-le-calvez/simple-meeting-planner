@@ -1,22 +1,19 @@
 import { list } from "@vercel/blob";
 
 export const config = {
-  runtime: "edge",
+  runtime: "nodejs",
 };
 
-export default async function handler() {
+export default async function handler(req, res) {
   const listResponse = await list();
   const file = listResponse.blobs.find((b) => b.pathname === "data.json");
 
-  if (!file)
-    return new Response("[]", {
-      headers: { "Content-Type": "application/json" },
-    });
+  if (!file) {
+    res.setHeader("Content-Type", "application/json");
+    return res.status(200).json([]);
+  }
 
-  const res = await fetch(file.url);
-  const data = await res.json();
-
-  return new Response(JSON.stringify(data), {
-    headers: { "Content-Type": "application/json" },
-  });
+  const data = await fetch(file.url).then((r) => r.json());
+  res.setHeader("Content-Type", "application/json");
+  return res.status(200).json(data);
 }
