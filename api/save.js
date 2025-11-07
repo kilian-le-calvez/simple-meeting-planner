@@ -31,6 +31,7 @@ export default async function handler(req, res) {
     contentType: "application/json",
     token: process.env.SECRET_BLOBBY_READ_WRITE_TOKEN, // ← token ici aussi
     access: "public",
+    allowOverwrite: true, // ✅ le fix ici
   });
 
   return res.status(200).json({ ok: true });
