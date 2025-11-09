@@ -44,7 +44,7 @@ const Slot: React.FC<SlotProps> = ({
       onMouseLeave={() => setHoveredSlot(null)}
       onMouseOver={() => setHoveredSlot(names.length ? `${day}-${hour}` : null)}
       onMouseUp={onMouseUp}
-      className={`border h-8 cursor-pointer flex items-center justify-center text-sm relative ${bgClass}`}
+      className={`border border-t border-r border-b-0 border-l-0 border-dashed h-8 cursor-pointer flex items-center justify-center text-sm relative ${bgClass}`}
     >
       {count > 0 ? count : ""}
 

@@ -38,9 +38,8 @@ const App: React.FC = () => {
     setAvailability(existing?.availability || {});
   }, [name, data]);
 
-  const toggleSlot = (day: string, hour: number, forceValue?: boolean) => {
+  const toggleSlot = (key: string, forceValue?: boolean) => {
     if (!name) return;
-    const key = `${day}-${hour}`;
     setAvailability((prev) => ({
       ...prev,
       [key]: forceValue !== undefined ? forceValue : !prev[key],
@@ -94,7 +93,7 @@ const App: React.FC = () => {
 
       <div className="flex flex-col items-center">
         <h1 className="text-2xl font-bold mb-4">
-          🗓 Fin réu pacte cofondateur
+          🗓 Dispo pour réunions
           {name && name !== "Just see the calendar" && ` - ${name}`}
         </h1>
 
@@ -184,6 +183,16 @@ const App: React.FC = () => {
 
         <div className="text-sm text-gray-600">
           💡 Clique ou glisse sur les cases pour modifier tes dispos.
+        </div>
+        {/* Debug, display data.json on click button */}
+        <div
+          className="mt-4 text-sm text-gray-600 underline cursor-pointer"
+          onClick={async () => {
+            const debugInfo = await getData();
+            alert(JSON.stringify(debugInfo, null, 2));
+          }}
+        >
+          Voir les données brutes
         </div>
       </div>
     </div>
