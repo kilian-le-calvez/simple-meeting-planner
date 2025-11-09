@@ -71,7 +71,7 @@ const Slot: React.FC<SlotProps> = ({
       {count > 0 ? count : ""}
 
       {hoveredSlot === `${day}-${hour}` && names.length > 0 && (
-        <div className="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs rounded px-2 py-1 whitespace-nowrap z-10">
+        <div className="absolute left-1/2 transform translate-x-8 bg-gray-800 text-white text-xs rounded px-2 py-1 whitespace-nowrap z-10">
           {names.join(", ")}
         </div>
       )}
