@@ -1,6 +1,6 @@
 // App.tsx
 import React, { useEffect, useState } from "react";
-import { getData, saveData } from "./data";
+import { getData, getServerDataDebug, saveData } from "./data";
 import Calendar from "./Calendar";
 import { computeCombinedAndNames } from "./utils";
 import { UserAvailability, Availability } from "./types";
@@ -188,7 +188,7 @@ const App: React.FC = () => {
         <div
           className="mt-4 text-sm text-gray-600 underline cursor-pointer"
           onClick={async () => {
-            const debugInfo = await getData();
+            const debugInfo = await getServerDataDebug();
             alert(JSON.stringify(debugInfo, null, 2));
           }}
         >

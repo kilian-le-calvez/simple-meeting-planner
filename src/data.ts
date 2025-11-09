@@ -7,11 +7,11 @@ interface ServerData {
 
 const isProd = process.env.NODE_ENV === "production";
 
-export async function getServerDataDebug(): Promise<string> {
+export async function getServerDataDebug(): Promise<ServerData | string> {
   if (isProd) {
-    const res = await fetch("/api/debug");
-    const text = await res.text();
-    return text;
+    const res = await fetch("/api/get");
+    const json: ServerData = await res.json();
+    return json;
   } else {
     return "Debug info not available in development mode.";
   }
