@@ -5,7 +5,7 @@ const EQUIPE_NB_MAX = 6;
 const EQUIPE_NB_BOF = 4;
 
 interface SlotProps {
-  day: string;
+  day: string; // ISO day (ex: 2025-11-09)
   hour: number;
   selected: boolean;
   count: number;
@@ -14,7 +14,7 @@ interface SlotProps {
   setHoveredSlot: (key: string | null) => void;
   onMouseDown: () => void;
   onMouseEnter: () => void;
-  onMouseUp: () => void; // 👈 ajouté ici
+  onMouseUp: () => void;
 }
 
 const Slot: React.FC<SlotProps> = ({
@@ -27,8 +27,18 @@ const Slot: React.FC<SlotProps> = ({
   setHoveredSlot,
   onMouseDown,
   onMouseEnter,
-  onMouseUp, // 👈 ajouté ici
+  onMouseUp,
 }) => {
+  // --- 🕓 Détermination du moment du slot
+  const slotDate = new Date(
+    `${day}T${hour.toString().padStart(2, "0")}:00:00Z`
+  );
+  const now = new Date();
+
+  // --- 🩶 Savoir si le créneau est passé
+  const isPast = slotDate.getTime() < now.getTime();
+
+  // --- 🟩 Couleur selon le remplissage
   let bgClass = "bg-transparent";
   if (selected) bgClass = "bg-blue-400 bg-opacity-50";
   else if (count > 0) {
@@ -37,6 +47,18 @@ const Slot: React.FC<SlotProps> = ({
     else bgClass = "bg-red-400 bg-opacity-75";
   }
 
+  // --- 🎨 Styles additionnels
+  const pastClass = isPast ? "opacity-30 pointer-events-none" : "";
+  // const currentClass =
+  //   Math.abs(slotDate.getTime() - now.getTime()) < 60 * 60 * 1000
+  //     ? "ring-2 ring-blue-600 ring-offset-1 animate-pulse"
+  //     : "";
+  // const currentClass =
+  //   now.getTime() >= slotDate.getTime() &&
+  //   now.getTime() < slotDate.getTime() + 60 * 60 * 1000
+  //     ? "ring-2 ring-blue-600 ring-offset-1 animate-pulse"
+  //     : "";
+
   return (
     <div
       onMouseDown={onMouseDown}
@@ -44,7 +66,7 @@ const Slot: React.FC<SlotProps> = ({
       onMouseLeave={() => setHoveredSlot(null)}
       onMouseOver={() => setHoveredSlot(names.length ? `${day}-${hour}` : null)}
       onMouseUp={onMouseUp}
-      className={`border border-t border-r border-b-0 border-l-0 border-dashed h-8 cursor-pointer flex items-center justify-center text-sm relative ${bgClass}`}
+      className={`border border-dashed h-8 cursor-pointer flex items-center justify-center text-sm relative ${bgClass} ${pastClass}`}
     >
       {count > 0 ? count : ""}
 
