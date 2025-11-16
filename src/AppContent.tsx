@@ -27,7 +27,7 @@ const TITLE = {
 interface AppContentProps {
   password: ValidPassword;
 }
-
+//
 function AppContent({ password }: AppContentProps) {
   const [name, setName] = useState<string | null>(null);
   const [availability, setAvailability] = useState<Availability>({});
