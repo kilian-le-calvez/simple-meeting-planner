@@ -11,7 +11,7 @@ function cleanupOldSlots(data) {
     const newAvailability = Object.fromEntries(
       Object.entries(u.availability).filter(([iso]) => {
         const d = new Date(iso);
-        return d >= now; // garde uniquement les slots à partir de maintenant
+        return d >= now;
       })
     );
     return { ...u, availability: newAvailability };
@@ -25,12 +25,14 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
 
   const { name, availability } = req.body;
+  const type = req.query.type || "default";
+  const filename = `data_${type}.json`;
   const todayISO = new Date().toISOString();
 
   const listResponse = await list({
     token: process.env.SECRET_BLOBBY_READ_WRITE_TOKEN,
   });
-  const file = listResponse.blobs.find((b) => b.pathname === "data.json");
+  const file = listResponse.blobs.find((b) => b.pathname === filename);
 
   let current = { date: todayISO, users: [] };
   if (file) {
@@ -42,15 +44,13 @@ export default async function handler(req, res) {
     }
   }
 
-  // 🔧 Nettoyer les slots obsolètes
   current = cleanupOldSlots(current);
 
-  // 🔄 Mettre à jour ou ajouter l'utilisateur
   const existing = current.users.find((u) => u.name === name);
   if (existing) existing.availability = availability;
   else current.users.push({ name, availability });
 
-  await put("data.json", JSON.stringify(current), {
+  await put(filename, JSON.stringify(current), {
     contentType: "application/json",
     token: process.env.SECRET_BLOBBY_READ_WRITE_TOKEN,
     access: "public",

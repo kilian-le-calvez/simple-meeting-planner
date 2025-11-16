@@ -24,12 +24,14 @@ export default async function handler(req, res) {
   if (req.method !== "GET")
     return res.status(405).json({ error: "Method not allowed" });
 
+  const type = req.query.type || "default"; // type de "collection"
+  const filename = `data_${type}.json`;
   const todayISO = new Date().toISOString();
 
   const listResponse = await list({
     token: process.env.SECRET_BLOBBY_READ_WRITE_TOKEN,
   });
-  const file = listResponse.blobs.find((b) => b.pathname === "data.json");
+  const file = listResponse.blobs.find((b) => b.pathname === filename);
 
   if (!file) return res.status(200).json({ date: todayISO, users: [] });
 
